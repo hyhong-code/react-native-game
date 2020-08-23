@@ -1,10 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, View, Text, Button, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  ScrollView,
+  FlatList,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import theme from "../constants/theme";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
 import MainButton from "../components/MainButton";
+import BodyText from "../components/BodyText";
 
 const genRandomBetween = (min, max, exclude) => {
   min = Math.ceil(min);
@@ -18,11 +27,17 @@ const genRandomBetween = (min, max, exclude) => {
   }
 };
 
+const renderListItems = (value, idx, numRounds) => (
+  <View key={`${value}-${idx}`} style={styles.listItem}>
+    <BodyText>#{numRounds}</BodyText>
+    <BodyText>{value}</BodyText>
+  </View>
+);
+
 const GameScreen = ({ userChoice, handleGameover }) => {
-  const [curGuess, setCurGuess] = useState(
-    genRandomBetween(1, 100, userChoice)
-  );
-  const [numRounds, setNumRounds] = useState(1);
+  const initialGuess = genRandomBetween(1, 100, userChoice); // Runs every render, but state only uses it once on init
+  const [curGuess, setCurGuess] = useState(initialGuess);
+  const [pastGuesses, setPastGuesses] = useState([initialGuess]);
 
   // Use useRef hook when no re-render is needed upon value change
   const minRef = useRef(1);
@@ -30,7 +45,7 @@ const GameScreen = ({ userChoice, handleGameover }) => {
 
   useEffect(() => {
     if (curGuess === userChoice) {
-      handleGameover(numRounds);
+      handleGameover(pastGuesses.length);
     }
   }, [curGuess, userChoice, handleGameover]);
 
@@ -56,8 +71,8 @@ const GameScreen = ({ userChoice, handleGameover }) => {
       newNum = genRandomBetween(maxRef.current, curGuess, curGuess);
     }
 
-    setNumRounds((prev) => prev + 1);
-    return setCurGuess(newNum);
+    setCurGuess(newNum);
+    setPastGuesses((prev) => [newNum, ...prev]);
   };
 
   return (
@@ -66,12 +81,27 @@ const GameScreen = ({ userChoice, handleGameover }) => {
       <NumberContainer>{curGuess}</NumberContainer>
       <Card style={styles.actions}>
         <MainButton onPress={handleNextGuess.bind(this, "LOWER")}>
-          LOWER
+          <Ionicons name="md-remove" size={24} color="white" />
         </MainButton>
         <MainButton onPress={handleNextGuess.bind(this, "GREATER")}>
-          GREATER
+          <Ionicons name="md-add" size={24} color="white" />
         </MainButton>
       </Card>
+      <View style={styles.listContainer}>
+        {/* <ScrollView contentContainerStyle={styles.list}>
+          {pastGuesses.map((guess, idx) =>
+            renderListItems(guess, idx, pastGuesses.length - idx)
+          )}
+        </ScrollView> */}
+        <FlatList
+          contentContainerStyle={styles.list}
+          data={pastGuesses}
+          keyExtractor={(guess, idx) => `${guess}-${idx}`}
+          renderItem={({ item, index }) =>
+            renderListItems(item, index, pastGuesses.length - index)
+          }
+        />
+      </View>
     </View>
   );
 };
@@ -88,6 +118,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: 400,
     maxWidth: "90%",
+  },
+  listContainer: {
+    width: "60%",
+    flex: 1, // Must have to to scroll on Android
+  },
+  list: {
+    justifyContent: "flex-end",
+    flexGrow: 1, // More flexible 'flex: 1'
+  },
+  listItem: {
+    borderColor: "#ccc",
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
 });
 

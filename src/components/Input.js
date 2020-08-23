@@ -2,7 +2,6 @@ import React from "react";
 import { TextInput, StyleSheet } from "react-native";
 
 const Input = ({ style, ...restProps }) => {
-  console.log(restProps);
   return <TextInput {...restProps} style={{ ...styles.input, ...style }} />;
 };
 
