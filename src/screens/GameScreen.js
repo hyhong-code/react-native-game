@@ -6,7 +6,10 @@ import {
   Alert,
   ScrollView,
   FlatList,
+  Dimensions,
+  useWindowDimensions,
 } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { Ionicons } from "@expo/vector-icons";
 
 import theme from "../constants/theme";
@@ -35,6 +38,8 @@ const renderListItems = (value, idx, numRounds) => (
 );
 
 const GameScreen = ({ userChoice, handleGameover }) => {
+  // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+
   const initialGuess = genRandomBetween(1, 100, userChoice); // Runs every render, but state only uses it once on init
   const [curGuess, setCurGuess] = useState(initialGuess);
   const [pastGuesses, setPastGuesses] = useState([initialGuess]);
@@ -75,11 +80,51 @@ const GameScreen = ({ userChoice, handleGameover }) => {
     setPastGuesses((prev) => [newNum, ...prev]);
   };
 
+  // Return alternative layout when screen is too short
+  // useWindowDimensions listens to dimension change and refect change in returned values
+  if (useWindowDimensions().height < 500) {
+    return (
+      <View style={styles.screen}>
+        <Text style={theme.title}>Opponent's Guess</Text>
+        <View style={styles.shortScreenControls}>
+          <MainButton onPress={handleNextGuess.bind(this, "LOWER")}>
+            <Ionicons name="md-remove" size={24} color="white" />
+          </MainButton>
+          <NumberContainer>{curGuess}</NumberContainer>
+          <MainButton onPress={handleNextGuess.bind(this, "GREATER")}>
+            <Ionicons name="md-add" size={24} color="white" />
+          </MainButton>
+        </View>
+        <View
+          style={
+            Dimensions.get("window").width < 350
+              ? styles.listContainerLg
+              : styles.listContainer
+          }
+        >
+          <FlatList
+            contentContainerStyle={styles.list}
+            data={pastGuesses}
+            keyExtractor={(guess, idx) => `${guess}-${idx}`}
+            renderItem={({ item, index }) =>
+              renderListItems(item, index, pastGuesses.length - index)
+            }
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.screen}>
       <Text style={theme.title}>Opponent's Guess</Text>
       <NumberContainer>{curGuess}</NumberContainer>
-      <Card style={styles.actions}>
+      <Card
+        style={{
+          ...styles.actions,
+          marginTop: useWindowDimensions().height > 600 ? 20 : 10,
+        }}
+      >
         <MainButton onPress={handleNextGuess.bind(this, "LOWER")}>
           <Ionicons name="md-remove" size={24} color="white" />
         </MainButton>
@@ -87,12 +132,13 @@ const GameScreen = ({ userChoice, handleGameover }) => {
           <Ionicons name="md-add" size={24} color="white" />
         </MainButton>
       </Card>
-      <View style={styles.listContainer}>
-        {/* <ScrollView contentContainerStyle={styles.list}>
-          {pastGuesses.map((guess, idx) =>
-            renderListItems(guess, idx, pastGuesses.length - idx)
-          )}
-        </ScrollView> */}
+      <View
+        style={
+          Dimensions.get("window").width < 350
+            ? styles.listContainerLg
+            : styles.listContainer
+        }
+      >
         <FlatList
           contentContainerStyle={styles.list}
           data={pastGuesses}
@@ -115,12 +161,15 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 20,
     width: 400,
     maxWidth: "90%",
   },
   listContainer: {
     width: "60%",
+    flex: 1, // Must have to to scroll on Android
+  },
+  listContainerLg: {
+    width: "80%",
     flex: 1, // Must have to to scroll on Android
   },
   list: {
@@ -136,6 +185,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
+  },
+  shortScreenControls: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "80%",
+    alignItems: "center",
   },
 });
 
