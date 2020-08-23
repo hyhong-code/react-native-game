@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   Button,
   TouchableWithoutFeedback,
@@ -13,6 +12,8 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import NumberContainer from "../components/NumberContainer";
 import Colors from "../constants/colors";
+import BodyText from "../components/BodyText";
+import TitleText from "../components/TitleText";
 
 const StartGameScreen = ({ handleStartGame }) => {
   const [value, setValue] = useState("");
@@ -52,9 +53,9 @@ const StartGameScreen = ({ handleStartGame }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.screen}>
-        <Text style={styles.title}>Start a new game!</Text>
+        <TitleText style={styles.title}>Start a new game!</TitleText>
         <Card style={styles.form}>
-          <Text>Select a number!</Text>
+          <BodyText>Select a number!</BodyText>
           <Input
             style={styles.input}
             blurOnSubmit
@@ -84,7 +85,7 @@ const StartGameScreen = ({ handleStartGame }) => {
         </Card>
         {isConfirmed && !!selectedNum && (
           <Card style={styles.summary}>
-            <Text>You selected:</Text>
+            <BodyText>You selected:</BodyText>
             <NumberContainer>{selectedNum}</NumberContainer>
             <Button
               title="START GAME"
