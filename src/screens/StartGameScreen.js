@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   Button,
   TouchableWithoutFeedback,
@@ -14,6 +15,7 @@ import NumberContainer from "../components/NumberContainer";
 import Colors from "../constants/colors";
 import BodyText from "../components/BodyText";
 import TitleText from "../components/TitleText";
+import MainButton from "../components/MainButton";
 
 const StartGameScreen = ({ handleStartGame }) => {
   const [value, setValue] = useState("");
@@ -87,10 +89,9 @@ const StartGameScreen = ({ handleStartGame }) => {
           <Card style={styles.summary}>
             <BodyText>You selected:</BodyText>
             <NumberContainer>{selectedNum}</NumberContainer>
-            <Button
-              title="START GAME"
-              onPress={() => handleStartGame(selectedNum)}
-            />
+            <MainButton onPress={() => handleStartGame(selectedNum)}>
+              START GAME
+            </MainButton>
           </Card>
         )}
       </View>

@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, Button, Alert } from "react-native";
 import theme from "../constants/theme";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
+import MainButton from "../components/MainButton";
 
 const genRandomBetween = (min, max, exclude) => {
   min = Math.ceil(min);
@@ -64,11 +65,12 @@ const GameScreen = ({ userChoice, handleGameover }) => {
       <Text style={theme.title}>Opponent's Guess</Text>
       <NumberContainer>{curGuess}</NumberContainer>
       <Card style={styles.actions}>
-        <Button title="LOWER" onPress={handleNextGuess.bind(this, "LOWER")} />
-        <Button
-          title="GREATER"
-          onPress={handleNextGuess.bind(this, "GREATER")}
-        />
+        <MainButton onPress={handleNextGuess.bind(this, "LOWER")}>
+          LOWER
+        </MainButton>
+        <MainButton onPress={handleNextGuess.bind(this, "GREATER")}>
+          GREATER
+        </MainButton>
       </Card>
     </View>
   );
@@ -84,8 +86,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     marginTop: 20,
-    width: 300,
-    maxWidth: "80%",
+    width: 400,
+    maxWidth: "90%",
   },
 });
 
